@@ -14,7 +14,7 @@ const router = Router();
 router.get("/all", getAllPackagesUnfiltered);
 router.route("/add").post(verifyJWT, upload.single("image"), createPackage);
 router.route("/:packageId").delete(verifyJWT, deletePackage);
-router.route("/:packageId").get(verifyJWT, getPackageById);
+router.route("/:packageId").get(getPackageById);
 
 router.route("/").get(getAllPackages);
 
