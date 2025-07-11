@@ -4,7 +4,11 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import mongoose from "mongoose";
 import { Package } from "../models/package.models.js";
 import { Category } from "../models/category.models.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  deleteFromCloudinary,
+  getCloudinaryPublicId,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 
 const createPackage = asyncHandler(async (req, res) => {
   const { name, description, category, price } = req.body;
@@ -33,12 +37,17 @@ const createPackage = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Not a valid category");
   }
 
-  const imageLocalPath = req.file?.path;
+  const imageLocalPath = req.files?.image?.[0]?.path;
   if (!imageLocalPath) {
     throw new ApiError(400, "Image not found");
   }
+  const descriptionImageLocalPath = req.files?.descriptionImage?.[0]?.path;
+
+  const descriptionImage = await uploadOnCloudinary(descriptionImageLocalPath);
+  console.log(`uploaded description image`);
 
   const image = await uploadOnCloudinary(imageLocalPath);
+  console.log(`image uploaded successfully`);
 
   if (!image) {
     throw new ApiError(
@@ -52,6 +61,7 @@ const createPackage = asyncHandler(async (req, res) => {
     description,
     image: image.url,
     category: categoryRef._id,
+    descriptionImage: descriptionImage?.url || "",
     price,
   });
 
@@ -106,6 +116,15 @@ const deletePackage = asyncHandler(async (req, res) => {
 
   if (!mongoose.isValidObjectId(packageId)) {
     throw new ApiError(400, "Not a valid package Id");
+  }
+
+  const selectedPackage = await Package.findById(
+    new mongoose.Types.ObjectId(packageId)
+  );
+
+  if (selectedPackage.descriptionImage !== "") {
+    const deleteImage = getCloudinaryPublicId(selectedPackage.descriptionImage);
+    await deleteFromCloudinary(deleteImage);
   }
 
   const deletedPackage = await Package.findByIdAndDelete(

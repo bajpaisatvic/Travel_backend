@@ -12,7 +12,20 @@ import { upload } from "../middlewares/multer.middleware.js";
 const router = Router();
 
 router.get("/all", getAllPackagesUnfiltered);
-router.route("/add").post(verifyJWT, upload.single("image"), createPackage);
+router.route("/add").post(
+  verifyJWT,
+  upload.fields([
+    {
+      name: "image",
+      maxCount: 1,
+    },
+    {
+      name: "descriptionImage",
+      maxCount: 1,
+    },
+  ]),
+  createPackage
+);
 router.route("/:packageId").delete(verifyJWT, deletePackage);
 router.route("/:packageId").get(getPackageById);
 
