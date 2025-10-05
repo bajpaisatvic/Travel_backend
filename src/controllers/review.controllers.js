@@ -29,20 +29,20 @@ const addReview = asyncHandler(async (req, res) => {
   if (!fullname || !email || !phoneNumber || !message) {
     throw new ApiError(404, "These fields are required");
   }
-  const body = `
-New Contact Form Submission:
+  //   const body = `
+  // New Contact Form Submission:
 
-Name: ${fullname}
-Email: ${email}
-Phone: ${phoneNumber}
-Message: ${message}
-    `;
+  // Name: ${fullname}
+  // Email: ${email}
+  // Phone: ${phoneNumber}
+  // Message: ${message}
+  //     `;
 
-  await sendEmail({
-    to: "bajpaisatvic@gmail.com",
-    subject: "New Contact Form Submission - Bumped Travel",
-    text: body,
-  });
+  //   await sendEmail({
+  //     to: "bajpaisatvic@gmail.com",
+  //     subject: "New Contact Form Submission - Bumped Travel",
+  //     text: body,
+  //   });
   const review = await Review.create({
     fullname,
     email,
